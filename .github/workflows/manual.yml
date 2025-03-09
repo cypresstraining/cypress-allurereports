@@ -14,38 +14,42 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        containers: [1, 2, 3]  # Adjust based on available GitHub runners
+        containers: [1, 2, 3]  # Parallel execution across 3 instances
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: ⬇️ Checkout Repository
+        uses: cypress-io/github-action@v6
         with:
-          node-version: 18
+          checkout: true
 
-      - name: Install Dependencies
-        run: npm install
+      - name: 📦 Install Dependencies (with cache)
+        uses: cypress-io/github-action@v6
+        with:
+          install: true
+          build: npm ci
 
-      - name: Run Cypress Tests in Parallel
-        run: |
-          npx cypress run --env allure=true --record --parallel
+      - name: 🚀 Run Cypress Tests in Parallel
+        uses: cypress-io/github-action@v6
+        with:
+          record: true
+          parallel: true
+          group: "UI Tests"
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
 
-      - name: Generate Allure Report
-        run: |
-          npm install -g allure-commandline --save-dev
-          allure generate allure-results --clean -o allure-report
+      - name: 🛠 Install Allure Command Line
+        run: npm install -g allure-commandline
 
-      - name: Upload Allure Report Artifact
+      - name: 📊 Generate Allure Report
+        run: allure generate allure-results --clean -o allure-report
+
+      - name: 📁 Upload Allure Report as an Artifact
         uses: actions/upload-artifact@v3
         with:
           name: allure-report
           path: allure-report
 
-      - name: Deploy Allure Report to GitHub Pages
+      - name: 🚀 Deploy Allure Report to GitHub Pages
         if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3
         with:
