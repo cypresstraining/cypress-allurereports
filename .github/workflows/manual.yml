@@ -15,9 +15,10 @@ jobs:
       fail-fast: false
       matrix:
         spec: 
-          - "cypress/e2e/test1.cy.js"
-          - "cypress/e2e/test2.cy.js"
-          - "cypress/e2e/test3.cy.js"
+          - "cypress/e2e/1-getting-started/todo.cy.js"
+          - "cypress/e2e/2-advanced-examples/actions.cy.js"
+          - "cypress/e2e/2-advanced-examples/aliasing.cy.js"
+          
 
     steps:
       - name: ⬇️ Checkout Repository
