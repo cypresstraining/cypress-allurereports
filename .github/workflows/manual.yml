@@ -18,9 +18,7 @@ jobs:
 
     steps:
       - name: ⬇️ Checkout Repository
-        uses: cypress-io/github-action@v6
-        with:
-          checkout: true
+        uses: actions/checkout@v4  # Latest checkout action
 
       - name: 📦 Install Dependencies (with cache)
         uses: cypress-io/github-action@v6
@@ -43,11 +41,12 @@ jobs:
       - name: 📊 Generate Allure Report
         run: allure generate allure-results --clean -o allure-report
 
-      - name: 📁 Upload Allure Report as an Artifact
-        uses: actions/upload-artifact@v3
+      - name: 📁 Upload Allure Report as an Artifact (Fixed)
+        uses: actions/upload-artifact@v4  # ✅ Fixed issue (Updated to v4)
         with:
           name: allure-report
           path: allure-report
+          retention-days: 7  # Set retention period
 
       - name: 🚀 Deploy Allure Report to GitHub Pages
         if: github.ref == 'refs/heads/main'
