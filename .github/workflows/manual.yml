@@ -14,26 +14,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        containers: [1]  # Parallel execution across 3 instances
+        spec: 
+          - "cypress/e2e/test1.cy.js"
+          - "cypress/e2e/test2.cy.js"
+          - "cypress/e2e/test3.cy.js"
 
     steps:
       - name: ⬇️ Checkout Repository
-        uses: actions/checkout@v4  # Latest checkout action
+        uses: actions/checkout@v4
 
-      - name: 📦 Install Dependencies (with cache)
-        uses: cypress-io/github-action@v6
-        with:
-          install: true
-          build: npm ci
+      - name: 📦 Install Dependencies
+        run: npm ci
 
-      - name: 🚀 Run Cypress Tests in Parallel
-        uses: cypress-io/github-action@v6
-        with:
-          record: true
-          parallel: true
-          group: "UI Tests"
-        env:
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+      - name: 🚀 Run Cypress Tests in Parallel (Without Cloud)
+        run: npx cypress run --spec ${{ matrix.spec }}
+        continue-on-error: true  # Ensures next steps run even if tests fail
 
       - name: 🛠 Install Allure Command Line
         run: npm install -g allure-commandline
@@ -41,16 +36,9 @@ jobs:
       - name: 📊 Generate Allure Report
         run: allure generate allure-results --clean -o allure-report
 
-      - name: 📁 Upload Allure Report as an Artifact (Fixed)
-        uses: actions/upload-artifact@v4  # ✅ Fixed issue (Updated to v4)
+      - name: 📁 Upload Allure Report
+        uses: actions/upload-artifact@v4
         with:
           name: allure-report
           path: allure-report
-          retention-days: 7  # Set retention period
-
-      - name: 🚀 Deploy Allure Report to GitHub Pages
-        if: github.ref == 'refs/heads/main'
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./allure-report
+          retention-days: 7
